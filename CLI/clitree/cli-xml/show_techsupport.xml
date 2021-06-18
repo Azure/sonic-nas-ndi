@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Copyright 2019 Dell, Inc.  
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+--> 
+
+<CLISH_MODULE
+    xmlns="http://www.dellemc.com/sonic/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xsi:schemaLocation="http://www.dellemc.com/sonic/XMLSchema
+    http://www.dellemc.com/sonic/XMLSchema/clish.xsd">
+
+<VIEW name="enable-view">
+    <COMMAND name="show tech-support" help="Collect technical support 
+                   information">
+        <PARAM
+            name="since"
+            help="Collect logs and core files since a specified date/time"
+            ptype="SUBCOMMAND"
+            mode="subcommand"
+            optional="true">
+
+            <PARAM
+                name="date"
+                help="date/time in the format:&#xA;&#xA;
+                    &quot;YYYY-MM-DDTHH:MM:SS[.ddd...]Z&quot; or&#xA;
+                    &quot;YYYY-MM-DDTHH:MM:SS[.ddd...]+hh:mm&quot; or&#xA;
+                    &quot;YYYY-MM-DDTHH:MM:SS[.ddd...]-hh:mm&quot; Where:&#xA;&#xA;
+                    YYYY = year, MM = month, DD = day,&#xA;
+                    T (required before time),&#xA;
+                    HH = hours, MM = minutes, SS = seconds,&#xA;
+                    (optional) .ddd... = decimal fraction of a second (e.g. &quot;.323&quot;)&#xA;
+                    Z indicates zero offset from local time&#xA;
+                    +/- hh:mm indicates hour:minute offset from local time"
+                ptype="STRING">
+            </PARAM>
+        </PARAM>
+        <ACTION>
+            python3 $SONIC_CLI_ROOT/sonic-cli-show-techsupport.py
+            rpc_sonic_show_techsupport_sonic_show_techsupport_info
+            ${date}
+        </ACTION>
+   </COMMAND>
+</VIEW>
+</CLISH_MODULE>
+
+
+
+
