@@ -1,0 +1,23 @@
+{% set vars = {'filename':'-'} %}
+{% set vars = {'filelist':[]} %}
+{% if json_output %}
+{% if vars.update({'filename': json_output["file-name"]}) %} {% endif %}
+
+{% if json_output["file-list"] %}
+{% if vars.update({'filelist': json_output["file-list"]}) %} {% endif %}
+{% endif %}
+
+Active Event Profile
+--------------------------
+{{vars.filename}}
+
+
+--------------------------
+Available Event Profiles
+--------------------------
+{% for file in vars.filelist %}
+{{file}}
+{% endfor %}
+
+{% endif %}
+

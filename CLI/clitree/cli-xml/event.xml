@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2021 Dell, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<CLISH_MODULE
+    xmlns="http://www.dellemc.com/sonic/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xsi:schemaLocation="http://www.dellemc.com/sonic/XMLSchema
+    http://www.dellemc.com/sonic/XMLSchema/clish.xsd"
+    >
+    <!--=======================================================-->
+     <PTYPE
+        name="ALARM_SEV_TYPE"
+        method="select"
+        pattern="critical(critical) major(major) minor(minor) warning(warning) informational(informational)"
+        help=""
+        />
+     <PTYPE
+        name="EVENT_SEV_TYPE"
+        method="select"
+        pattern="critical(critical) major(major) minor(minor) warning(warning) informational(informational)"
+        help=""
+        />
+     <PTYPE
+        name="RECENT_INTERVAL"
+        method="select"
+        pattern="5min(5min) 60min(60min) 24hr(24hr)"
+        help=""
+        />
+    <!--=======================================================-->
+   <VIEW name="enable-view" >
+
+    <COMMAND
+      name="alarm"
+      help="Alarm related commands">
+    </COMMAND>
+
+    <COMMAND
+      name="alarm acknowledge"
+      help="Acknowledge an active alarm">
+      <PARAM
+        name="id"
+        ptype="STRING"
+        help="Enter id"
+        />
+       <ACTION builtin="clish_pyobj">sonic-cli-event alarm_acknowledge  ${__full_line} </ACTION>
+    </COMMAND>
+
+    <COMMAND
+      name="alarm unacknowledge"
+      help="Unacknowledge an active alarm">
+      <PARAM
+        name="id"
+        ptype="STRING"
+        help="Enter id"
+        />
+       <ACTION builtin="clish_pyobj">sonic-cli-event alarm_unacknowledge  ${__full_line} </ACTION>
+    </COMMAND>
+
+    <COMMAND
+        name="show event"
+        help="Summary of events">
+        <PARAM
+            name="filter"
+            help="filter type"
+            mode="switch"
+            ptype="SUBCOMMAND"
+            optional="true">
+          <PARAM
+            name="from"
+            help="Set start id"
+            ptype="SUBCOMMAND"
+            mode="subcommand"
+             >
+             <PARAM
+              name="startid"
+              ptype="STRING"
+              help="Enter start id"
+              />
+              <PARAM
+                 name="to"
+                 help="Set end id"
+                 ptype="SUBCOMMAND"
+                 mode="subcommand"
+                 optional="true"
+                >
+                <PARAM
+                  name="endid"
+                  ptype="STRING"
+                  help="Enter end id"
+                  />
+              </PARAM>
+        </PARAM>
+        <PARAM
+            name="start"
+            help="Set start time"
+            ptype="SUBCOMMAND"
+            mode="subcommand"
+           >
+            <PARAM
+              name="starttime"
+              ptype="STRING"
+              help="Enter startime"
+             />
+            <PARAM
+              name="end"
+              help="Set end time"
+              mode="subcommand"
+              ptype="SUBCOMMAND"
+              optional="true"
+              >
+                <PARAM
+                  name="endtime"
+                  ptype="STRING"
+                  help="Enter endtime"
+                />
+            </PARAM>
+        </PARAM>
+      </PARAM>
+     <ACTION builtin="clish_pyobj">sonic-cli-event get_event_filter  ${__full_line} </ACTION>
+    </COMMAND>
+
+    <COMMAND
+        name="show event details"
+        help="Detailed view of events">
+      <ACTION builtin="clish_pyobj">sonic-cli-event get_event_details ${__full_line} </ACTION>        
+    </COMMAND>
+
+    <COMMAND
+        name="show event id"
+        help="Display event"
+        ptype="SUBCOMMAND"
+        mode="subcommand">
+          <PARAM
+                  name="id"
+                  ptype="STRING"
+                  help="Enter event id"
+                  />
+     <ACTION builtin="clish_pyobj">sonic-cli-event get_event_id ${__full_line} </ACTION>
+    </COMMAND>
+
+    <COMMAND 
+        name="show event recent"
+        help="Event recent"
+        ptype="SUBCOMMAND">
+        <PARAM
+           name="interval"
+           help="Show recent event interval"
+           ptype="RECENT_INTERVAL" />
+        <ACTION builtin="clish_pyobj">sonic-cli-event get_event_filter  ${__full_line} </ACTION>
+    </COMMAND>
+
+    <COMMAND
+        name="show event severity"
+        help="Display all events with a given severity"
+        ptype="SUBCOMMAND"
+        mode="subcommand">
+        <PARAM
+              name="sev"
+              ptype="EVENT_SEV_TYPE"
+              help="Enter severity"/>
+     <ACTION builtin="clish_pyobj">sonic-cli-event get_event_filter  ${__full_line} </ACTION>   
+    </COMMAND>
+
+    <COMMAND
+        name="show event summary"
+        help="Display event summary"
+        ptype="SUBCOMMAND">
+     <ACTION builtin="clish_pyobj">sonic-cli-event get_event_stats ${__full_line} </ACTION>
+    </COMMAND>    
+
+    <COMMAND
+        name="show alarm all"
+        help="Display all alarms"
+        ptype="SUBCOMMAND">
+     <ACTION builtin="clish_pyobj">sonic-cli-event get_alarm_all ${__full_line} </ACTION>
+    </COMMAND>
+
+    <COMMAND
+        name="show alarm acknowledged"
+        help="Display all alarms"
+        ptype="SUBCOMMAND">
+     <ACTION builtin="clish_pyobj">sonic-cli-event get_alarm_acknowledged ${__full_line} </ACTION>
+    </COMMAND>
+
+    <COMMAND
+        name="show alarm"
+        help="Summary of alarms within the specified duration">
+        <PARAM
+            name="filter"
+            help="filter type"
+            mode="switch"
+            ptype="SUBCOMMAND"
+            optional="true">
+          <PARAM
+            name="from"
+            help="Set start id"
+            ptype="SUBCOMMAND"
+            mode="subcommand"
+             >
+             <PARAM
+              name="startid"
+              ptype="STRING"
+              help="Enter start id"
+              />
+              <PARAM
+                 name="to"
+                 help="Set end id"
+                 ptype="SUBCOMMAND"
+                 mode="subcommand"
+                 optional="true"
+                >
+                <PARAM
+                  name="endid"
+                  ptype="STRING"
+                  help="Enter end id"
+                  />
+              </PARAM>
+        </PARAM>
+        <PARAM
+            name="start"
+            help="Set start time"
+            ptype="SUBCOMMAND"
+            mode="subcommand"
+           >
+            <PARAM
+              name="starttime"
+              ptype="STRING"
+              help="Enter startime"
+             />
+            <PARAM
+              name="end"
+              help="Set end time"
+              mode="subcommand"
+              ptype="SUBCOMMAND"
+              optional="true"
+              >
+                <PARAM
+                  name="endtime"
+                  ptype="STRING"
+                  help="Enter endtime"
+                />
+            </PARAM>
+        </PARAM>
+      </PARAM>
+     <ACTION builtin="clish_pyobj">sonic-cli-event get_alarm_filter  ${__full_line} </ACTION>
+    </COMMAND>
+
+    <COMMAND
+        name="show alarm id"
+        help="Display alarm"
+        ptype="SUBCOMMAND"
+        mode="subcommand">
+          <PARAM
+                  name="id"
+                  ptype="STRING"
+                  help="Enter alarm id"
+                  />
+     <ACTION builtin="clish_pyobj">sonic-cli-event get_alarm_id ${__full_line} </ACTION>
+    </COMMAND>
+
+    <COMMAND
+        name="show alarm detail"
+        help="Active alarm details"
+        ptype="SUBCOMMAND">
+     <ACTION builtin="clish_pyobj">sonic-cli-event get_alarm_detail ${__full_line} </ACTION>
+    </COMMAND>
+
+    <COMMAND 
+        name="show alarm recent"
+        help="Alarm recent"
+        ptype="SUBCOMMAND">
+        <PARAM
+           name="interval"
+           help="Show recent alarm interval"
+           ptype="RECENT_INTERVAL" />
+        <ACTION builtin="clish_pyobj">sonic-cli-event get_alarm_filter  ${__full_line} </ACTION>
+    </COMMAND>
+
+    <COMMAND
+        name="show alarm severity"
+        help="Display all alarms with a given severity"
+        ptype="SUBCOMMAND"
+        mode="subcommand">
+        <PARAM
+              name="sev"
+              ptype="ALARM_SEV_TYPE"
+              help="Enter severity"/>
+     <ACTION builtin="clish_pyobj">sonic-cli-event get_alarm_filter  ${__full_line} </ACTION>
+    </COMMAND>
+
+    <COMMAND
+        name="show alarm summary"
+        help="Display alarm summary"
+        ptype="SUBCOMMAND">
+     <ACTION builtin="clish_pyobj">sonic-cli-event get_alarm_stats ${__full_line} </ACTION>
+    </COMMAND>
+
+  </VIEW>
+</CLISH_MODULE>

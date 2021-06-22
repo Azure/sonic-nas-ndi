@@ -1,0 +1,44 @@
+{% set vars = {'header' : true } %}
+
+{% if 'sonic-event:EVENT_LIST' in json_output.keys() %}
+{% for evt  in json_output['sonic-event:EVENT_LIST']  %}
+            {{- '----------------------------------------------\n'}}
+            {{- 'Event Details -' }} {{ evt['id'] }} {{'\n'}}
+            {{- '----------------------------------------------\n'}}
+            {% if 'action' in evt %}
+                 {% set  action = evt['action'] %}
+            {% else %}
+                {% set action = '-' %}
+            {% endif %}
+            {% if 'time-created' in evt %}
+                {% set time_created = evt['time-created'] %}
+            {% else %}
+                {% set time_created = "-" %}
+            {% endif %}
+            {{- 'Id:'.ljust(20) }} {{ evt['id'] }} {{ '\n'}} {{- 'Action:'.ljust(20) }} {{ action }} {{ '\n' }} {{- 'Severity:'.ljust(20) }} {{ evt['severity'] }} {{ '\n' }} {{- 'Type:'.ljust(20) }} {{ evt['type-id'] }} {{ '\n' }} {{- 'Timestamp'.ljust(20) }} {{ datetimeformat_rfc3339(time_created) }} {{ '\n'}} {{- 'Description:'.ljust(20) }} {{ evt['text'] }} {{ '\n' }} {{- 'Source:'.ljust(20) }} {{ evt['resource'] }} {{ '\n' }} {{ '\n' }}
+{% endfor %}
+{% endif %}
+
+{% if 'sonic-alarm:ALARM_LIST' in json_output.keys() %}
+{% for alarm  in json_output['sonic-alarm:ALARM_LIST']  %}
+    {% if 'time-created' in alarm %}
+       {% set time_created = alarm['time-created'] %}
+    {% else %}
+        {% set time_created = '-' %}
+    {% endif %}
+    {% if 'acknowledged' in alarm %}
+        {% set acknowledged = alarm['acknowledged'] %}
+    {% else %}
+        {% set acknowledged = '-' %}
+    {% endif %}
+    {% if 'acknowledge-time' in alarm %}
+        {% set acknowledge_time = alarm['acknowledge-time'] %}
+    {% else %}
+        {% set acknowledge_time = '-' %}
+    {% endif %}
+            {{- '----------------------------------------------\n'}}
+            {{- 'Alarm Details -' }} {{ alarm['id'] }} {{'\n'}}
+            {{- '----------------------------------------------\n'}}
+            {{- 'Id:'.ljust(20) }} {{ alarm['id'] }} {{ '\n'}} {{- 'Severity:'.ljust(20) }} {{ alarm['severity'] }} {{ '\n' }} {{- 'Type:'.ljust(20) }} {{ alarm['type-id'] }} {{ '\n' }} {{- 'Timestamp'.ljust(20) }} {{ datetimeformat_rfc3339(time_created) }} {{ '\n'}} {{- 'Description:'.ljust(20) }} {{ alarm['text'] }} {{ '\n' }} {{- 'Source:'.ljust(20) }} {{ alarm['resource'] }} {{ '\n' }} {{- 'Acknowledged:'.ljust(20) }} {{ acknowledged }} {{ '\n' }} {{- 'Acknowledged time:'.ljust(20) }} {% if acknowledge_time == '-' %} {{ '-' }} {% else %} {{ datetimeformat_rfc3339(acknowledge_time) }} {% endif %} {{ '\n' }}{{ '\n' }}
+{% endfor %}
+{% endif %}

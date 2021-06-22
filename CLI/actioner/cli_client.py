@@ -69,7 +69,7 @@ class ApiClient(object):
             msg = '%Error: Could not connect to Management REST Server'
             return ApiClient.__new_error_response(msg)
 
-    def post(self, path, data={}, response_type=None):
+    def post(self, path, data=None, response_type=None):
         return self.request("POST", path, data, response_type=response_type)
 
     def get(self, path, depth=None, ignore404=True, response_type=None):

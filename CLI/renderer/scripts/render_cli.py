@@ -151,6 +151,12 @@ def show_cli_output(template_file, response, continuation=False, **kwargs):
     j2_env.lstrip_blocks = True
     j2_env.rstrip_blocks = True
 
+    def datetimeformat_rfc3339(time):
+        s = datetime.datetime.fromtimestamp(int(time)//1000000000).strftime('%Y-%m-%dT%H:%M:%S')
+        return s + "." + (str(int(time)%1000000000))[0:3] + "Z"
+
+    j2_env.globals.update(datetimeformat_rfc3339=datetimeformat_rfc3339)
+
     def datetimeformat(time):
         return datetime.datetime.fromtimestamp(int(time)).strftime('%Y-%m-%d %H:%M:%S')
 

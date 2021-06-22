@@ -1,0 +1,121 @@
+{% set vars = {'header' : true } %}
+{% set func = '' %}
+{% if key is defined %}
+    {% set func = key %}
+{% endif %}
+
+{% macro summary_ev(evt_list) %}
+          {% for evt  in evt_list  %}
+
+             {% if vars.header %}
+              {{- '----------------------------------------------------------------------------------------------------------------------------\n'}}
+              {{- 'Id'.ljust(12)}} {{'Action'.ljust(15)}} {{'Severity'.ljust(15)}} {{'Name'.ljust(30)}} {{ 'Timestamp'.ljust(27) }} {{ 'Description'.ljust(60)}} {{'\n'}}
+              {{- '----------------------------------------------------------------------------------------------------------------------------' }}
+              {% if vars.update({'header': False}) %}{% endif %}
+            {% endif %}
+            {% if 'action' in evt %}
+	           {% set action = evt['action'] %}
+            {% else %}
+               {% set  action = '-' %}
+            {% endif %}
+            {% if 'time-created' in evt %}
+              {% set time_created = evt['time-created'] %}
+            {% else %}
+              {% set time_created = '-' %}
+            {% endif %}
+            {% if time_created == '-' %}
+            {{- evt['id'].ljust(12) }} {{ action.ljust(15) }} {{ evt['severity'].ljust(15) }} {{ evt['type-id'].ljust(30) }} {{ '-'.ljust(35) }} {{ evt['text'].ljust(50) -}}
+            {% else %}
+            {{- evt['id'].ljust(12) }} {{ action.ljust(15) }} {{ evt['severity'].ljust(15) }} {{ evt['type-id'].ljust(30) }} {{ datetimeformat_rfc3339(time_created).ljust(27) }} {{ evt['text'].ljust(50) -}}
+            {% endif %}
+          {% endfor %}
+{% endmacro %}
+
+{% macro summary_alarm(alarm_list) %}
+          {% for alarm  in alarm_list  %}
+             {% if vars.header %}
+              {{- '----------------------------------------------------------------------------------------------------------------------------\n' }}
+              {{- 'Id'.ljust(12)}} {{'Severity'.ljust(10)}} {{'Name'.ljust(30)}} {{ 'Timestamp'.ljust(27) }} {{ 'Description'.ljust(60)}} {{'\n'}}
+              {{- '----------------------------------------------------------------------------------------------------------------------------' }}
+              {% if vars.update({'header': False}) %}{% endif %}
+            {% endif %}
+            {% if 'time-created' in alarm %}
+              {% set time_created = alarm['time-created'] %}
+            {% else %}
+              {% set time_created = '-' %}
+            {% endif %}
+            {%- if 'acknowledged' in alarm %}
+              {% if alarm['acknowledged'] == True %}
+                {% if func is defined and func == "get_alarm_filter" %}
+                  {% continue %}
+                {% endif %}
+              {% else %}
+                {% if func is defined and func == "get_alarm_acknowledged" %}
+                   {% continue %}
+                 {% endif %}
+              {% endif %}
+            {% endif -%}
+            {% if time_created == '-' %}
+            {{- alarm['id'].ljust(12) }} {{ alarm['severity'].ljust(10) }} {{ alarm['type-id'].ljust(30) }} {{ '-'.ljust(35) }} {{ alarm['text'].ljust(50) }}
+            {% else %}
+            {{- alarm['id'].ljust(12) }} {{ alarm['severity'].ljust(10) }} {{ alarm['type-id'].ljust(30) }} {{ datetimeformat_rfc3339(time_created).ljust(27) }} {{ alarm['text'].ljust(50) }}
+            {% endif %}
+          {% endfor %}
+{% endmacro %}
+
+{% if 'sonic-event:EVENT_LIST' in json_output.keys() %}
+   {{ summary_ev(json_output['sonic-event:EVENT_LIST']) }}
+{% endif %}
+
+{% if 'EVENT' in json_output.keys() %}
+   {% if 'EVENT_LIST' in json_output['EVENT'] %}
+     {% if json_output['EVENT']['EVENT_LIST'] is not none %}
+       {{ summary_ev(json_output['EVENT']['EVENT_LIST']) }}
+     {% endif %}
+   {% endif %}
+{% endif %}
+
+
+{% if 'sonic-alarm:ALARM_LIST' in json_output.keys() %}
+   {{- summary_alarm(json_output['sonic-alarm:ALARM_LIST']) }}
+{% endif %}
+
+
+{% if 'ALARM' in json_output.keys() %}
+   {% if 'ALARM_LIST' in json_output['ALARM'] %}
+     {% if json_output['ALARM']['ALARM_LIST'] is not none %}
+       {{- summary_alarm(json_output['ALARM']['ALARM_LIST']) }}
+     {% endif %}
+   {% endif %}
+{% endif %}
+
+
+{% if 'sonic-alarm:ALARM_STATS_LIST' in json_output.keys() %}
+    {% for alarm  in json_output['sonic-alarm:ALARM_STATS_LIST']  %}
+        {% if alarm['id'] == 'state' %}
+            {{- 'Alarm summary\n' }}
+            {{- '---------------------------------\n' }}
+            {{- 'Total:'.ljust(30) }} {{ alarm['alarms'] }} {{ '\n' }}
+            {{- 'Critical:'.ljust(30) }} {{ alarm['critical'] }} {{ '\n' }}
+            {{- 'Major:'.ljust(30) }} {{ alarm['major'] }} {{ '\n' }}
+            {{- 'Minor:'.ljust(30) }} {{ alarm['minor'] }} {{ '\n' }}
+            {{- 'Warning:'.ljust(30) }} {{ alarm['warning'] }} {{ '\n' }}
+            {{- 'Acnowledged:'.ljust(30) }} {{ alarm['acknowledged'] }} {{ '\n' }}
+            {{- '----------------------------------\n' }}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{% if 'sonic-event:EVENT_STATS_LIST' in json_output.keys() %}
+    {% for evt  in json_output['sonic-event:EVENT_STATS_LIST']  %}
+        {% if evt['id'] == 'state' %}
+            {{- 'Event summary\n' }}
+            {{- '---------------------------------\n' }}
+            {{- 'Total:'.ljust(30) }} {{ evt['events'] }} {{ '\n' }}
+            {{- 'Raised:'.ljust(30) }} {{ evt['raised'] }} {{ '\n' }}
+            {{- 'Acknowledged:'.ljust(30) }} {{ evt['acked'] }} {{ '\n' }}
+            {{- 'Cleared:'.ljust(30) }} {{ evt['cleared'] }} {{ '\n' }}
+            {{- '----------------------------------\n' }}
+        {% endif %}
+    {% endfor %}
+{% endif %}
